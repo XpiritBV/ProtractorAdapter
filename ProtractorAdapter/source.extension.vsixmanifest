@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+	<Metadata>
+		<Identity Id="ProtractorAdapter.Marcel de Vries.d7e47cc3-daee-417b-9b0e-6a41fd397f90" Version="1.0.0.1" Language="en-US" Publisher="Marcel de Vries" />
+		<DisplayName>ProtractorAdapter</DisplayName>
+		<Description xml:space="preserve">Protractor test adapter</Description>
+	</Metadata>
+	<Installation>
+		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
+	</Installation>
+	<Dependencies>
+		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
+	</Dependencies>
+	<Assets>
+		<Asset Type="UnitTestExtension" d:Source="Project" d:ProjectName="ProtractorTestAdapter" Path="|ProtractorTestAdapter|" />
+		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="ProtractorTestAdapter" Path="|ProtractorTestAdapter|" />
+	</Assets>
+</PackageManifest>
