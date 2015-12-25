@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProtractorTestContainer.cs" />
     <Compile Include="Helpers\ISolutionEventsListener.cs" />
     <Compile Include="Helpers\ITestFileAddRemoveListener.cs" />
     <Compile Include="Helpers\ITestFilesUpdateWatcher.cs" />
@@ -75,16 +76,9 @@
     <Compile Include="Helpers\TestFilesUpdateWatcher.cs" />
     <Compile Include="Helpers\VsSolutionHelper.cs" />
     <Compile Include="ProtractorContainerDiscoverer.cs" />
-    <Compile Include="ProtractorExternalTestExecutor.cs" />
     <Compile Include="ProtractorTestDiscoverer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProtractorTestExecutor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DanTup.TestAdapters\DanTup.TestAdapters.csproj">
-      <Project>{6863b093-3b08-4e78-a542-6c121d31399f}</Project>
-      <Name>DanTup.TestAdapters</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="conf.js">

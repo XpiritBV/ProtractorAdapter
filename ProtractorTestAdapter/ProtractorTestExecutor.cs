@@ -32,25 +32,11 @@ namespace ProtractorTestAdapter
         #endregion
 
         #region ITestExecutor
-
-        /// <summary>
-        /// Runs the tests.
-        /// </summary>
-        /// <param name="sources">Path to files to look for tests in.</param>
-        /// <param name="runContext">Context to use when executing the tests.</param>
-        /// <param param name="frameworkHandle">Handle to the framework to record results and to do framework operations.</param>
-        public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
+        public void RunTests(IEnumerable<string> sources, IRunContext runContext,
+          IFrameworkHandle frameworkHandle)
         {
-            List<TestCase> tests = new List<TestCase>();
-            foreach (var source in sources)
-            {
-                new ProtractorExternalTestExecutor().GetTestCases(source, null);
-            }
-
-            frameworkHandle.SendMessage(TestMessageLevel.Error, "Running test");
-
+            IEnumerable<TestCase> tests = ProtractorTestDiscoverer.GetTests(sources, null);
             RunTests(tests, runContext, frameworkHandle);
-
         }
         /// <summary>
         /// Runs the tests.
@@ -89,6 +75,7 @@ namespace ProtractorTestAdapter
             m_cancelled = true;
         }
 
+        
         #endregion
 
     }
