@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace ProtractorTestAdapter
 {
-    [ExtensionUri(ProtractorTestExecutor.ExecutorUriString)]
+//    [ExtensionUri(ProtractorTestExecutor.ExecutorUriString)]
     public class ProtractorTestExecutor : ITestExecutor
     {
         #region Constants
@@ -40,7 +41,13 @@ namespace ProtractorTestAdapter
         /// <param param name="frameworkHandle">Handle to the framework to record results and to do framework operations.</param>
         public void RunTests(IEnumerable<string> sources, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
-            IEnumerable<TestCase> tests = ProtractorTestDiscoverer.GetTests(sources, null);
+            List<TestCase> tests = new List<TestCase>();
+            foreach (var source in sources)
+            {
+                new ProtractorExternalTestExecutor().GetTestCases(source, null);
+            }
+
+            frameworkHandle.SendMessage(TestMessageLevel.Error, "Running test");
 
             RunTests(tests, runContext, frameworkHandle);
 
@@ -61,13 +68,13 @@ namespace ProtractorTestAdapter
                 {
                     break;
                 }
-
+                frameworkHandle.RecordStart(test);
                 // Setup the test result as indicated by the test case.
                 var testResult = new TestResult(test)
                 {
-                    Outcome = (TestOutcome)test.GetPropertyValue(TestResultProperties.Outcome),
-                    ErrorMessage = (string)test.GetPropertyValue(TestResultProperties.ErrorMessage),
-                    ErrorStackTrace = (string)test.GetPropertyValue(TestResultProperties.ErrorStackTrace)
+                    Outcome = TestOutcome.Passed, //(TestOutcome)test.GetPropertyValue(TestResultProperties.Outcome),
+                    //ErrorMessage = (string)test.GetPropertyValue(TestResultProperties.ErrorMessage),
+                    //ErrorStackTrace = (string)test.GetPropertyValue(TestResultProperties.ErrorStackTrace)
                 };
 
                 frameworkHandle.RecordResult(testResult);
