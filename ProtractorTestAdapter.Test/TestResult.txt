@@ -1,0 +1,11 @@
+﻿[
+  {
+    "description": "should greet the named user",
+    "assertions": [
+      {
+        "passed": true
+      }
+    ],
+    "duration": 4168
+  }
+]

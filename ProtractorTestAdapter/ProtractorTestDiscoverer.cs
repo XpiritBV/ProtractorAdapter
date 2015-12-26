@@ -37,9 +37,10 @@ namespace ProtractorTestAdapter
                 var TestNames = GetTestNameFromFile(source);
                 foreach (var testName in TestNames)
                 {
-                    var testCase = new TestCase(testName, ProtractorTestExecutor.ExecutorUri, source);
+                    var testCase = new TestCase(testName.Key, ProtractorTestExecutor.ExecutorUri, source);
                     tests.Add(testCase);
-
+                    testCase.CodeFilePath = source;
+                    testCase.LineNumber = testName.Value;
                     if (discoverySink != null)
                     {
                         discoverySink.SendTestCase(testCase);
@@ -52,12 +53,12 @@ namespace ProtractorTestAdapter
         private const string DescribeToken = "describe('";
 
 
-        private static List<string> GetTestNameFromFile(string source)
+        private static Dictionary<string, int> GetTestNameFromFile(string source)
         {
-            var testNames = new List<string>();
+            var testNames = new Dictionary<string, int>();
             if (File.Exists(source))
             {
-
+                int lineNumber = 1;
                 using (var stream = File.OpenRead(source))
                 {
                     using (var textReader = new StreamReader(stream))
@@ -68,8 +69,9 @@ namespace ProtractorTestAdapter
                             if (resultLine != null && resultLine.Contains(DescribeToken))
                             {
                                 var name = GetNameFromDescribeLine(resultLine);
-                                testNames.Add(name);
+                                testNames.Add(name, lineNumber);
                             }
+                            lineNumber++;
                         }
                     }
                     stream.Close();
