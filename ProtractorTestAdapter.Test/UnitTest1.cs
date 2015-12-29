@@ -11,9 +11,9 @@ namespace ProtractorTestAdapter.Test
         [DeploymentItem("TestResult.txt")]
         public void TestJsonOutcomeParsing()
         {
-
-            var outcome = ProtractorTestExecutor.GetOutcomeFromJsonResultFile("TestResult.txt");
-            Assert.IsTrue(outcome == TestOutcome.Passed);
+            TestCase tc = new TestCase("Test", ProtractorTestExecutor.ExecutorUri, "bla");
+            var outcome = ProtractorTestExecutor.GetResultsFromJsonResultFile("TestResult.txt",tc);
+            Assert.IsTrue(outcome.Outcome == TestOutcome.Passed);
         }
     }
 }
