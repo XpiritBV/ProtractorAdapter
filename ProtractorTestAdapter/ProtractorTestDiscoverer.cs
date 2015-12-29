@@ -19,10 +19,10 @@ namespace ProtractorTestAdapter
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger,
             ITestCaseDiscoverySink discoverySink)
         {
+            logger.SendMessage(TestMessageLevel.Informational, Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id.ToString());
             foreach (var source in sources)
             {
-                Debugger.Break();
-                logger.SendMessage(TestMessageLevel.Error, source);
+                logger.SendMessage(TestMessageLevel.Informational, source);
             }
 
             GetTests(sources, discoverySink);
@@ -30,6 +30,9 @@ namespace ProtractorTestAdapter
 
         internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink)
         {
+            //if(!Debugger.IsAttached)
+            //        Debugger.Launch();
+
             var tests = new List<TestCase>();
 
             foreach (string source in sources)
@@ -41,8 +44,10 @@ namespace ProtractorTestAdapter
                     tests.Add(testCase);
                     testCase.CodeFilePath = source;
                     testCase.LineNumber = testName.Value;
+                    
                     if (discoverySink != null)
                     {
+                       
                         discoverySink.SendTestCase(testCase);
                     }
                 }

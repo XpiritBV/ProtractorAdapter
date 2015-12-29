@@ -33,19 +33,31 @@ namespace ProtractorTestAdapter.EventWatchers
         public void AddWatch(string path)
         {
             ValidateArg.NotNullOrEmpty(path, "path");
-
+            
             if (!String.IsNullOrEmpty(path))
             {
+
                 var directoryName = Path.GetDirectoryName(path);
+                if (!Directory.Exists(directoryName))
+                    return;
+
                 var fileName = Path.GetFileName(path);
 
                 FileWatcherInfo watcherInfo;
                 if (!fileWatchers.TryGetValue(path, out watcherInfo))
                 {
-                    watcherInfo = new FileWatcherInfo(new FileSystemWatcher(directoryName, fileName));
+                    var watcher = new FileSystemWatcher(directoryName, fileName);
+                    
+                    watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+                                         | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+
+                    watcherInfo = new FileWatcherInfo(watcher);
                     fileWatchers.Add(path, watcherInfo);
 
                     watcherInfo.Watcher.Changed += OnChanged;
+                    watcherInfo.Watcher.Created += OnChanged;
+                    watcherInfo.Watcher.Deleted += OnChanged;
+                    watcherInfo.Watcher.Renamed += OnChanged;
                     watcherInfo.Watcher.EnableRaisingEvents = true;
                 }
             }
@@ -63,8 +75,10 @@ namespace ProtractorTestAdapter.EventWatchers
                     watcherInfo.Watcher.EnableRaisingEvents = false;
 
                     fileWatchers.Remove(path);
-
                     watcherInfo.Watcher.Changed -= OnChanged;
+                    watcherInfo.Watcher.Created -= OnChanged;
+                    watcherInfo.Watcher.Deleted -= OnChanged;
+                    watcherInfo.Watcher.Renamed -= OnChanged;
                     watcherInfo.Watcher.Dispose();
                     watcherInfo.Watcher = null;
                 }

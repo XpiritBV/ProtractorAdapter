@@ -166,15 +166,15 @@ namespace ProtractorTestAdapter
             if (initialContainerSearch)
             {
                 cachedContainers.Clear();
-                var xmlFiles = FindXmlFiles();
-                UpdateFileWatcher(xmlFiles, true);
+                var protractorFiles = FindProtractorFiles();
+                UpdateFileWatcher(protractorFiles, true);
                 initialContainerSearch = false;
             }
 
             return cachedContainers;
         }
 
-        private IEnumerable<string> FindXmlFiles()
+        private IEnumerable<string> FindProtractorFiles()
         {
             var solution = (IVsSolution)serviceProvider.GetService(typeof(SVsSolution));
             var loadedProjects = solution.EnumerateLoadedProjects(__VSENUMPROJFLAGS.EPF_LOADEDINSOLUTION).OfType<IVsProject>();
