@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace ProtractorTestAdapter
 {
-    //    [ExtensionUri(ProtractorTestExecutor.ExecutorUriString)]
+    [ExtensionUri(ProtractorTestExecutor.ExecutorUriString)]
     public class ProtractorTestExecutor : ITestExecutor
     {
         #region Constants
@@ -38,8 +38,17 @@ namespace ProtractorTestAdapter
         public void RunTests(IEnumerable<string> sources, IRunContext runContext,
           IFrameworkHandle frameworkHandle)
         {
-            frameworkHandle.SendMessage(TestMessageLevel.Error, "Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, "Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
+            foreach(var source in sources)
+            {
+                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Finding tests in source:" + source);
+            }
+            
             IEnumerable<TestCase> tests = ProtractorTestDiscoverer.GetTests(sources, null);
+            foreach(var test in tests)
+            {
+                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Found test:" + test.DisplayName);
+            }
             RunTests(tests, runContext, frameworkHandle);
         }
         /// <summary>
@@ -59,6 +68,7 @@ namespace ProtractorTestAdapter
                     break;
                 }
                 frameworkHandle.RecordStart(test);
+                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Starting external test for " + test.DisplayName);
                 var testOutcome = RunExternalTest(test, runContext, frameworkHandle,test);
                 // Setup the test result as indicated by the test case.
 
@@ -70,7 +80,10 @@ namespace ProtractorTestAdapter
         {
             var resultFile = RunProtractor(test, runContext, frameworkHandle);
             var  testResult = GetResultsFromJsonResultFile(resultFile, testCase);
-            
+
+            // clean the temp file
+
+            File.Delete(resultFile);
 
             return testResult;
         }
@@ -114,20 +127,17 @@ namespace ProtractorTestAdapter
         {
             var resultFile = Path.GetFileNameWithoutExtension(test.Source);
             resultFile += ".result.json";
-            resultFile = Path.Combine(runContext.TestRunDirectory, resultFile);
-
-            if (!Directory.Exists(runContext.TestRunDirectory))
-            {
-                Directory.CreateDirectory(runContext.TestRunDirectory);
-            }
-
+            
+            resultFile = Path.Combine(Path.GetTempPath(), resultFile);
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, "result file: " + resultFile);
+           
             ProcessStartInfo info = new ProcessStartInfo()
             {
                 Arguments = string.Format("--resultJsonOutputFile \"{0}\" --specs \"{1}\" --framework jasmine", resultFile, test.Source),
                 FileName = "protractor.cmd"
             };
 
-            frameworkHandle.SendMessage(TestMessageLevel.Error, "starting protractor with arguments:" + info.Arguments);
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, "starting protractor with arguments:" + info.Arguments);
 
 
             Process p = new Process();
