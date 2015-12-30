@@ -2,8 +2,6 @@
 <RunSettings>
 	<!-- Configurations that affect the Test Framework -->
 	<RunConfiguration>
-		<!-- Path to Test Adapters -->
-		<TestAdaptersPaths>C:\tests\packages</TestAdaptersPaths>
 		<ResultsDirectory>C:\tests\TestResults</ResultsDirectory>
 	</RunConfiguration>
 </RunSettings>
