@@ -70,7 +70,8 @@ namespace ProtractorTestAdapter
                 frameworkHandle.RecordStart(test);
                 frameworkHandle.SendMessage(TestMessageLevel.Informational, "Starting external test for " + test.DisplayName);
                 var testOutcome = RunExternalTest(test, runContext, frameworkHandle,test);
-                // Setup the test result as indicated by the test case.
+                
+                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Test result:" + testOutcome.Outcome.ToString());
 
                 frameworkHandle.RecordResult(testOutcome);
             }
