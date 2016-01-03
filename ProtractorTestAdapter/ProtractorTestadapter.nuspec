@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>ProtractorTestAdapter</id>
-        <version>1.0.0.5</version>
+        <version>1.0.0.7</version>
         <title>Protractor Test Adapter for VS 2015</title>
         <authors>Marcel de Vries</authors>
         <owners>Marcel de Vries</owners>
@@ -13,4 +13,7 @@
         <language>en-US</language>
         <tags>test visualstudio testadapter protractor</tags>
     </metadata>
+	<files>
+		<file src="bin\$configuration$\Newtonsoft.Json.dll" target="lib\net452" />
+	</files>
 </package>

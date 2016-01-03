@@ -70,10 +70,10 @@ namespace ProtractorTestAdapter
                 frameworkHandle.RecordStart(test);
                 frameworkHandle.SendMessage(TestMessageLevel.Informational, "Starting external test for " + test.DisplayName);
                 var testOutcome = RunExternalTest(test, runContext, frameworkHandle,test);
-                
+                frameworkHandle.RecordResult(testOutcome);
                 frameworkHandle.SendMessage(TestMessageLevel.Informational, "Test result:" + testOutcome.Outcome.ToString());
 
-                frameworkHandle.RecordResult(testOutcome);
+                
             }
         }
 
@@ -84,7 +84,7 @@ namespace ProtractorTestAdapter
 
             // clean the temp file
 
-            File.Delete(resultFile);
+           // File.Delete(resultFile);
 
             return testResult;
         }
@@ -145,6 +145,7 @@ namespace ProtractorTestAdapter
             p.StartInfo = info;
             p.Start();
             p.WaitForExit();
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, "Protractor run done exit code:"+ p.ExitCode.ToString());
 
             return resultFile;
         }
