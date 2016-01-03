@@ -65,8 +65,7 @@
     <None Include="ProtractorValidation.Runsettings" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="conf.js" />
-    <Content Include="JavaScript1.js" />
+    <Content Include="JS homepage test.js" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
