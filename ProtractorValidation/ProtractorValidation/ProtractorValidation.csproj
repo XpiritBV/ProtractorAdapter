@@ -36,11 +36,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.9\lib\net452\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.10\lib\net452\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Protractor.TestAdapter, Version=1.0.0.9, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.9\lib\net452\Protractor.TestAdapter.dll</HintPath>
+    <Reference Include="Protractor.TestAdapter, Version=1.0.0.10, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.10\lib\net452\Protractor.TestAdapter.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
