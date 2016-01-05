@@ -25,34 +25,43 @@ namespace ProtractorTestAdapter
                 logger.SendMessage(TestMessageLevel.Informational, source);
             }
 
-            GetTests(sources, discoverySink);
-        }
+            try
+            {
+                GetTests(sources, discoverySink);
+            }
+            catch (Exception e)
+            {
+                logger.SendMessage(TestMessageLevel.Error, "exception thrown during test discovery: " + e.Message);
+            }
 
-        internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink)
+}
+
+internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink)
         {
             //if(!Debugger.IsAttached)
             //        Debugger.Launch();
-
             var tests = new List<TestCase>();
 
-            foreach (string source in sources)
-            {
-                var TestNames = GetTestNameFromFile(source);
-                foreach (var testName in TestNames)
+               
+                foreach (string source in sources)
                 {
-                    var testCase = new TestCase(testName.Key, ProtractorTestExecutor.ExecutorUri, source);
-                    tests.Add(testCase);
-                    testCase.CodeFilePath = source;
-                    testCase.LineNumber = testName.Value;
-                    
-                    if (discoverySink != null)
+                    var TestNames = GetTestNameFromFile(source);
+                    foreach (var testName in TestNames)
                     {
-                       
-                        discoverySink.SendTestCase(testCase);
+                        var normalizedSource = source.ToLowerInvariant();
+                        var testCase = new TestCase(testName.Key, ProtractorTestExecutor.ExecutorUri, normalizedSource);
+                        tests.Add(testCase);
+                        testCase.CodeFilePath = source;
+                        testCase.LineNumber = testName.Value;
+
+                        if (discoverySink != null)
+                        {
+
+                            discoverySink.SendTestCase(testCase);
+                        }
                     }
                 }
-            }
-            return tests;
+                        return tests;
         }
 
         private const string DescribeToken = "describe('";
