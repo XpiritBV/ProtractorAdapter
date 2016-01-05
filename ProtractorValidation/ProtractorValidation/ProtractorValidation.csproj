@@ -66,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="conf.js" />
-    <Content Include="JS homepage test.js" />
+    <Content Include="JS_homepage_test.js" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
