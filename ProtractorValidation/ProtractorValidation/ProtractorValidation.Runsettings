@@ -2,6 +2,6 @@
 <RunSettings>
 	<!-- Configurations that affect the Test Framework -->
 	<RunConfiguration>
-		<TestAdaptersPaths>C:\tests\packages</TestAdaptersPaths>
+		<TestAdaptersPaths>C:\tests\packages\ProtractorTestAdapter.1.0.0.13\lib\net452</TestAdaptersPaths>
 	</RunConfiguration>
 </RunSettings>
