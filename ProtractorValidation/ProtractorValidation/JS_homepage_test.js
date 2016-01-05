@@ -1,4 +1,4 @@
-﻿describe('angularjs homepage', function () {
+﻿describe('hobbelduif', function () {
 	it('should greet the named user', function () {
 		browser.get('http://www.angularjs.org');
 
@@ -9,4 +9,7 @@
 		expect(greeting.getText()).toEqual('Hello Julie!');
 	});  
 });
+
+
+
 

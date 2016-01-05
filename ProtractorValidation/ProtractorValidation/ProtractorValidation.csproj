@@ -65,6 +65,7 @@
     <None Include="ProtractorValidation.Runsettings" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bla.js" />
     <Content Include="conf.js" />
     <Content Include="JS_homepage_test.js" />
   </ItemGroup>
