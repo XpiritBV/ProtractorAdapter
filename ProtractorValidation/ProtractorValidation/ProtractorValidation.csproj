@@ -36,11 +36,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.7\lib\net452\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.13\lib\net452\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Protractor.TestAdapter, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.7\lib\net452\Protractor.TestAdapter.dll</HintPath>
+    <Reference Include="Protractor.TestAdapter, Version=1.0.0.11, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ProtractorTestAdapter.1.0.0.13\lib\net452\Protractor.TestAdapter.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -65,7 +65,9 @@
     <None Include="ProtractorValidation.Runsettings" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="JS homepage test.js" />
+    <Content Include="bla.js" />
+    <Content Include="conf.js" />
+    <Content Include="JS_homepage_test.js" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -38,18 +38,25 @@ namespace ProtractorTestAdapter
         public void RunTests(IEnumerable<string> sources, IRunContext runContext,
           IFrameworkHandle frameworkHandle)
         {
-            frameworkHandle.SendMessage(TestMessageLevel.Informational, "Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
-            foreach(var source in sources)
-            {
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Finding tests in source:" + source);
+
+            try {
+                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
+                foreach (var source in sources)
+                {
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Finding tests in source:" + source);
+                }
+
+                IEnumerable<TestCase> tests = ProtractorTestDiscoverer.GetTests(sources, null);
+                foreach (var test in tests)
+                {
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Found test:" + test.DisplayName);
+                }
+                RunTests(tests, runContext, frameworkHandle);
             }
-            
-            IEnumerable<TestCase> tests = ProtractorTestDiscoverer.GetTests(sources, null);
-            foreach(var test in tests)
+            catch(Exception e)
             {
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Found test:" + test.DisplayName);
+                frameworkHandle.SendMessage(TestMessageLevel.Error, "Exception during test execution: " +e.Message);
             }
-            RunTests(tests, runContext, frameworkHandle);
         }
         /// <summary>
         /// Runs the tests.
@@ -60,22 +67,28 @@ namespace ProtractorTestAdapter
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             m_cancelled = false;
-
-            foreach (TestCase test in tests)
+            try
             {
-                if (m_cancelled)
+                foreach (TestCase test in tests)
                 {
-                    break;
-                }
-                frameworkHandle.RecordStart(test);
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Starting external test for " + test.DisplayName);
-                var testOutcome = RunExternalTest(test, runContext, frameworkHandle,test);
-                frameworkHandle.RecordResult(testOutcome);
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Test result:" + testOutcome.Outcome.ToString());
+                    if (m_cancelled)
+                    {
+                        break;
+                    }
+                    frameworkHandle.RecordStart(test);
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Starting external test for " + test.DisplayName);
+                    var testOutcome = RunExternalTest(test, runContext, frameworkHandle, test);
+                    frameworkHandle.RecordResult(testOutcome);
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Test result:" + testOutcome.Outcome.ToString());
 
-                
+
+                }
             }
-        }
+            catch(Exception e)
+            {
+                frameworkHandle.SendMessage(TestMessageLevel.Error, "Exception during test execution: " +e.Message);
+            }
+}
 
         private TestResult RunExternalTest(TestCase test, IRunContext runContext, IFrameworkHandle frameworkHandle, TestCase testCase)
         {

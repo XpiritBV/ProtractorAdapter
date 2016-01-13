@@ -53,6 +53,12 @@
     <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProtractorTestAdapter.VS\ProtractorTestAdapter.VS.csproj">
+      <Project>{3BDCAFA3-A6D3-4E36-A101-829BA0A3B91C}</Project>
+      <Name>ProtractorTestAdapter.VS</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
     <ProjectReference Include="..\ProtractorTestAdapter\ProtractorTestAdapter.csproj">
       <Project>{31725649-FEF6-453B-97D3-C93A70114047}</Project>
       <Name>ProtractorTestAdapter</Name>
