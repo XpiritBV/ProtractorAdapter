@@ -38,24 +38,23 @@ namespace ProtractorTestAdapter
         public void RunTests(IEnumerable<string> sources, IRunContext runContext,
           IFrameworkHandle frameworkHandle)
         {
-
             try {
-                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
+                frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
                 foreach (var source in sources)
                 {
-                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Finding tests in source:" + source);
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Finding tests in source:" + source);
                 }
 
                 IEnumerable<TestCase> tests = ProtractorTestDiscoverer.GetTests(sources, null);
                 foreach (var test in tests)
                 {
-                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Found test:" + test.DisplayName);
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Found test:" + test.DisplayName);
                 }
                 RunTests(tests, runContext, frameworkHandle);
             }
             catch(Exception e)
             {
-                frameworkHandle.SendMessage(TestMessageLevel.Error, "Exception during test execution: " +e.Message);
+                frameworkHandle.SendMessage(TestMessageLevel.Error, "Framework: Exception during test execution: " + e.Message);
             }
         }
         /// <summary>
@@ -76,28 +75,27 @@ namespace ProtractorTestAdapter
                         break;
                     }
                     frameworkHandle.RecordStart(test);
-                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Starting external test for " + test.DisplayName);
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Starting external test for " + test.DisplayName);
                     var testOutcome = RunExternalTest(test, runContext, frameworkHandle, test);
                     frameworkHandle.RecordResult(testOutcome);
-                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Test result:" + testOutcome.Outcome.ToString());
-
-
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Test result:" + testOutcome.Outcome.ToString());
+                    frameworkHandle.RecordEnd(test, testOutcome.Outcome);
                 }
             }
             catch(Exception e)
             {
-                frameworkHandle.SendMessage(TestMessageLevel.Error, "Exception during test execution: " +e.Message);
+                frameworkHandle.SendMessage(TestMessageLevel.Error, "Framework: Exception during test execution: " +e.Message);
             }
-}
+        }
 
         private TestResult RunExternalTest(TestCase test, IRunContext runContext, IFrameworkHandle frameworkHandle, TestCase testCase)
         {
             var resultFile = RunProtractor(test, runContext, frameworkHandle);
-            var  testResult = GetResultsFromJsonResultFile(resultFile, testCase);
+            var testResult = GetResultsFromJsonResultFile(resultFile, testCase);
 
             // clean the temp file
 
-           // File.Delete(resultFile);
+            File.Delete(resultFile);
 
             return testResult;
         }
@@ -105,6 +103,7 @@ namespace ProtractorTestAdapter
         public static TestResult GetResultsFromJsonResultFile(string resultFile, TestCase testCase)
         {
             var jsonResult = "";
+            var resultOutCome = new TestResult(testCase);
             if (File.Exists(resultFile))
             {
 
@@ -117,9 +116,14 @@ namespace ProtractorTestAdapter
                     stream.Close();
                 }
             }
+            else
+            {
+                resultOutCome.Outcome = TestOutcome.Failed;
+                resultOutCome.ErrorMessage = "Framework: Error! No results were created. Check your arguments, use /logger:console,verbosity=detailed or /diag:results.log";
+                return resultOutCome;
+            }
 
             var results = JsonConvert.DeserializeObject<List<ProtractorResult>>(jsonResult);
-            var resultOutCome = new TestResult(testCase);
             resultOutCome.Outcome = TestOutcome.Passed;
             foreach (var result in results)
             {
@@ -128,37 +132,74 @@ namespace ProtractorTestAdapter
                     if (!assert.passed)
                     {
                         resultOutCome.Outcome = TestOutcome.Failed;
-                        resultOutCome.ErrorStackTrace = assert.stackTrace;
-                        resultOutCome.ErrorMessage = assert.errorMsg;
+                        resultOutCome.ErrorStackTrace = $"{resultOutCome.ErrorStackTrace}\n{assert.stackTrace}";
+                        resultOutCome.ErrorStackTrace = $"{resultOutCome.ErrorMessage}\n{assert.errorMsg}";
                     }
                 }
             }
 
             return resultOutCome;
         }
-
+        public static string FindExePath(string exe)
+        {
+            exe = Environment.ExpandEnvironmentVariables(exe);
+            if (!File.Exists(exe))
+            {
+                if (Path.GetDirectoryName(exe) == String.Empty)
+                {
+                    foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
+                    {
+                        string path = test.Trim();
+                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exe)))
+                        {
+                            exe = path;
+                            break;
+                        }
+                    }
+                }
+                else throw new FileNotFoundException(new FileNotFoundException().Message, exe);
+            }
+            exe = Path.GetFullPath(exe);
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                if (File.Exists(exe + ".exe")) exe += ".exe";
+                else if (File.Exists(exe + ".bat")) exe += ".bat";
+                else if (File.Exists(exe + ".cmd")) exe += ".cmd";
+            }
+            return exe;
+        }
         private string RunProtractor(TestCase test, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             var resultFile = Path.GetFileNameWithoutExtension(test.Source);
             resultFile += ".result.json";
-            
+
             resultFile = Path.Combine(Path.GetTempPath(), resultFile);
-            frameworkHandle.SendMessage(TestMessageLevel.Informational, "result file: " + resultFile);
-           
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Using result file: " + resultFile);
+
             ProcessStartInfo info = new ProcessStartInfo()
             {
-                Arguments = string.Format("--resultJsonOutputFile \"{0}\" --specs \"{1}\" --framework jasmine", resultFile, test.Source),
-                FileName = "protractor.cmd"
+                Arguments = string.Format("{0} --resultJsonOutputFile \"{1}\" --specs \"{2}\"", AppConfig.Arguments, resultFile, test.Source),
+                FileName = FindExePath(AppConfig.Program),
+                WorkingDirectory = runContext.SolutionDirectory,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
             };
-
-            frameworkHandle.SendMessage(TestMessageLevel.Informational, "starting protractor with arguments:" + info.Arguments);
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, $"Framework: Starting {AppConfig.Program} with arguments: {info.Arguments}");
 
 
             Process p = new Process();
             p.StartInfo = info;
+            p.OutputDataReceived += (sender, args) => { if (args != null && !string.IsNullOrEmpty(args.Data))
+                    frameworkHandle.SendMessage(TestMessageLevel.Informational, args.Data); };
+            p.ErrorDataReceived += (sender, args) => { if (args != null && !string.IsNullOrEmpty(args.Data))
+                    frameworkHandle.SendMessage(TestMessageLevel.Warning, args.Data); };
             p.Start();
+            p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
             p.WaitForExit();
-            frameworkHandle.SendMessage(TestMessageLevel.Informational, "Protractor run done exit code:"+ p.ExitCode.ToString());
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Complete. Exit code: "+ p.ExitCode.ToString());
 
             return resultFile;
         }

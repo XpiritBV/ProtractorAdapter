@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 
 namespace ProtractorTestAdapter
 {
-    [FileExtension(".js")]
+    [FileExtension(AppConfig.VSTestFileExtension)]
     [DefaultExecutorUri(ProtractorTestExecutor.ExecutorUriString)]
     public class ProtractorTestDiscoverer : ITestDiscoverer
     {
@@ -31,43 +31,54 @@ namespace ProtractorTestAdapter
             }
             catch (Exception e)
             {
-                logger.SendMessage(TestMessageLevel.Error, "exception thrown during test discovery: " + e.Message);
+                logger.SendMessage(TestMessageLevel.Error, "Framework: Exception thrown during test discovery: " + e.Message);
             }
 
-}
+        }
 
-internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink)
+        internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink)
         {
             //if(!Debugger.IsAttached)
             //        Debugger.Launch();
             var tests = new List<TestCase>();
-
-               
-                foreach (string source in sources)
+            
+            foreach (string source in sources)
+            {
+                var TestNames = GetTestNameFromFile(source);
+                foreach (var testName in TestNames)
                 {
-                    var TestNames = GetTestNameFromFile(source);
-                    foreach (var testName in TestNames)
+                    var normalizedSource = source.ToLowerInvariant();
+                    var testCase = new TestCase(testName.Key, ProtractorTestExecutor.ExecutorUri, normalizedSource);
+                    tests.Add(testCase);
+                    testCase.CodeFilePath = source;
+                    testCase.LineNumber = testName.Value;
+
+                    if (discoverySink != null)
                     {
-                        var normalizedSource = source.ToLowerInvariant();
-                        var testCase = new TestCase(testName.Key, ProtractorTestExecutor.ExecutorUri, normalizedSource);
-                        tests.Add(testCase);
-                        testCase.CodeFilePath = source;
-                        testCase.LineNumber = testName.Value;
-
-                        if (discoverySink != null)
-                        {
-
-                            discoverySink.SendTestCase(testCase);
-                        }
+                        discoverySink.SendTestCase(testCase);
                     }
                 }
-                        return tests;
+            }
+            return tests;
         }
 
         private const string DescribeToken = "describe('";
 
-
         private static Dictionary<string, int> GetTestNameFromFile(string source)
+        {
+            switch(AppConfig.Framework)
+            {
+                case TestFramework.Jasmine:
+                    return GetTestNameFromFileJS(source);
+                default:
+                    return new Dictionary<string, int>
+                    {
+                        { source, 0 }
+                    };
+            }
+        }
+
+        private static Dictionary<string, int> GetTestNameFromFileJS(string source)
         {
             var testNames = new Dictionary<string, int>();
             if (File.Exists(source))

@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestWindow.Extensibility;
 using ProtractorTestAdapter.EventWatchers;
 using ProtractorTestAdapter.EventWatchers.EventArgs;
 
+
 namespace ProtractorTestAdapter
 {
     [Export(typeof(ITestContainerDiscoverer))]
@@ -27,7 +28,7 @@ namespace ProtractorTestAdapter
         private ITestFileAddRemoveListener testFilesAddRemoveListener;
         private bool initialContainerSearch;
         private readonly List<ITestContainer> cachedContainers;
-        protected string FileExtension { get { return ".js"; } }
+        protected string FileExtension { get { return AppConfig.FileExtension; } }
         public Uri ExecutorUri { get { return new System.Uri(ExecutorUriString); } }
         public IEnumerable<ITestContainer> TestContainers { get { return GetTestContainers(); } }
 
@@ -191,7 +192,7 @@ namespace ProtractorTestAdapter
 
         private static bool IsProtractorFile(string path)
         {
-            return ".js".Equals(Path.GetExtension(path), StringComparison.OrdinalIgnoreCase);
+            return AppConfig.FileExtension.Equals(Path.GetExtension(path), StringComparison.OrdinalIgnoreCase);
         }
 
         private bool IsTestFile(string path)
