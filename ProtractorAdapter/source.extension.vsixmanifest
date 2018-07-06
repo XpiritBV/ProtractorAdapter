@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="ProtractorAdapter.Marcel de Vries.d7e47cc3-daee-417b-9b0e-6a41fd397f90" Version="1.0.0.10" Language="en-US" Publisher="Marcel de Vries" />
+        <Identity Id="ProtractorAdapter.Josep Mateu Clemente.d7e47cc3-daee-417b-9b0e-6a41fd397f90" Version="1.0.0" Language="en-US" Publisher="Josep Mateu Clemente" />
         <DisplayName>ProtractorAdapter</DisplayName>
         <Description xml:space="preserve">Protractor test adapter</Description>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />
-        <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.Pro" />
-        <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.Enterprise" />
+        <InstallationTarget Version="[14.0,15.0]" Id="Microsoft.VisualStudio.Pro" />
+        <InstallationTarget Version="[14.0,15.0]" Id="Microsoft.VisualStudio.Enterprise" />
     </Installation>
     <Dependencies>
         <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.5,)" />
@@ -18,6 +18,6 @@
         <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="ProtractorTestAdapter.VS" Path="|ProtractorTestAdapter.VS|" />
     </Assets>
     <Prerequisites>
-        <Prerequisite Id="Microsoft.VisualStudio.Component.Common.Azure.Tools" Version="[14.0,16.0]" DisplayName="Microsoft.VisualStudio.Component.CoreEditor" />
+        <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[14.0,16.0]" DisplayName="Visual Studio core editor" />
     </Prerequisites>
 </PackageManifest>

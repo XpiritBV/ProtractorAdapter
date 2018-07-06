@@ -10,7 +10,6 @@ using Microsoft.VisualStudio.TestWindow.Extensibility.Model;
 
 namespace ProtractorTestAdapter
 {
-
     public class ProtractorTestContainer : ITestContainer
     {
         private ITestContainerDiscoverer discoverer;
@@ -24,8 +23,6 @@ namespace ProtractorTestAdapter
             this.ExecutorUri = executorUri;
             this.DebugEngines = debugEngines;
             this.discoverer = discoverer;
-            this.TargetFramework = FrameworkVersion.None;
-            this.TargetPlatform = Architecture.AnyCPU;
             this.timeStamp = GetTimeStamp();
         }
 
@@ -53,8 +50,6 @@ namespace ProtractorTestAdapter
         public string Source { get; set; }
         public Uri ExecutorUri { get; set; }
         public IEnumerable<Guid> DebugEngines { get; set; }
-        public FrameworkVersion TargetFramework { get; set; }
-        public Architecture TargetPlatform { get; set; }
         public override string ToString()
         {
             return this.ExecutorUri.ToString() + "/" + this.Source;
@@ -63,6 +58,9 @@ namespace ProtractorTestAdapter
         public IDeploymentData DeployAppContainer() { return null; }
         public bool IsAppContainerTestContainer { get { return false; } }
         public ITestContainerDiscoverer Discoverer { get { return discoverer; } }
+
+        public FrameworkVersion TargetFramework { get { return FrameworkVersion.None; } }
+        public Architecture TargetPlatform { get { return Architecture.AnyCPU; } }
 
         public int CompareTo(ITestContainer other)
         {
@@ -84,6 +82,11 @@ namespace ProtractorTestAdapter
         public ITestContainer Snapshot()
         {
             return new ProtractorTestContainer(this);
+        }
+
+        IDeploymentData ITestContainer.DeployAppContainer()
+        {
+            return null;
         }
     }
 

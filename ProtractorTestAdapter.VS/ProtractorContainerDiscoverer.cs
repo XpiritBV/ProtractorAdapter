@@ -40,6 +40,8 @@ namespace ProtractorTestAdapter
             ITestFilesUpdateWatcher testFilesUpdateWatcher,
             ITestFileAddRemoveListener testFilesAddRemoveListener)
         {
+            if(!Debugger.IsAttached)
+                    Debugger.Launch();
             Trace.WriteLine("Protractor container Discoverer created");
 
             initialContainerSearch = true;
