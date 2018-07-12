@@ -1,18 +1,19 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ProtractorTestAdapter;
 
-namespace ProtractorTestAdapter.Test
+namespace ProtractorAdapterTest
 {
     [TestClass]
-    public class UnitTest1
+    public class JsonParsing
     {
         [TestMethod]
         [DeploymentItem("TestResult.txt")]
         public void TestJsonOutcomeParsing()
         {
             TestCase tc = new TestCase("Test", ProtractorTestExecutor.ExecutorUri, "bla");
-            var outcome = ProtractorTestExecutor.GetResultsFromJsonResultFile("TestResult.txt",tc);
+            var outcome = ProtractorTestExecutor.GetResultsFromJsonResultFile("TestResult.txt", tc);
             Assert.IsTrue(outcome.Outcome == TestOutcome.Passed);
         }
     }

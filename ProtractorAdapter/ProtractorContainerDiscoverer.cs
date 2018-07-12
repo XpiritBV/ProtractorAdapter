@@ -16,7 +16,7 @@ using ProtractorTestAdapter.EventWatchers.EventArgs;
 namespace ProtractorTestAdapter
 {
     [Export(typeof(ITestContainerDiscoverer))]
-    public class ProtractorTestContainerDiscoverer : ITestContainerDiscoverer
+    public class TestContainerDiscoverer : ITestContainerDiscoverer, IDisposable
     {
         public const string ExecutorUriString = ProtractorTestExecutor.ExecutorUriString;
 
@@ -28,20 +28,18 @@ namespace ProtractorTestAdapter
         private ITestFileAddRemoveListener testFilesAddRemoveListener;
         private bool initialContainerSearch;
         private readonly List<ITestContainer> cachedContainers;
-        protected string FileExtension { get { return AppConfig.FileExtension; } }
+        protected string FileExtension { get { return AppConfig.VSTestFileExtension; } }
         public Uri ExecutorUri { get { return new System.Uri(ExecutorUriString); } }
         public IEnumerable<ITestContainer> TestContainers { get { return GetTestContainers(); } }
 
         [ImportingConstructor]
-        public ProtractorTestContainerDiscoverer(
+        public TestContainerDiscoverer(
             [Import(typeof(SVsServiceProvider))] IServiceProvider serviceProvider,
             ILogger logger,
             ISolutionEventsListener solutionListener,
             ITestFilesUpdateWatcher testFilesUpdateWatcher,
             ITestFileAddRemoveListener testFilesAddRemoveListener)
         {
-            if(!Debugger.IsAttached)
-                    Debugger.Launch();
             Trace.WriteLine("Protractor container Discoverer created");
 
             initialContainerSearch = true;
@@ -150,7 +148,7 @@ namespace ProtractorTestAdapter
             // If this is a test file
             if (isTestFile)
             {
-                var container = new ProtractorTestContainer(this, file, ExecutorUri);
+                var container = new TestContainer(this, file, DateTime.Now);
                 cachedContainers.Add(container);
             }
         }
@@ -194,14 +192,15 @@ namespace ProtractorTestAdapter
 
         private static bool IsProtractorFile(string path)
         {
-            return AppConfig.FileExtension.Equals(Path.GetExtension(path), StringComparison.OrdinalIgnoreCase);
+            var fullPath = Path.GetFullPath(path);
+            return fullPath.Like(AppConfig.Include) && !fullPath.Like(AppConfig.Exclude);
         }
 
         private bool IsTestFile(string path)
         {
             try
             {
-                return IsProtractorFile(path);
+                return !String.IsNullOrWhiteSpace(path) && IsProtractorFile(path);
             }
             catch (IOException e)
             {
