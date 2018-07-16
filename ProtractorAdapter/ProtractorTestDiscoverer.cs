@@ -20,8 +20,8 @@ namespace ProtractorTestAdapter
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger,
             ITestCaseDiscoverySink discoverySink)
         {
-            if (Debugger.IsAttached) Debugger.Break();
-            else Debugger.Launch();
+            //if (Debugger.IsAttached) Debugger.Break();
+            //else Debugger.Launch();
             string baseDir = Environment.CurrentDirectory;
             try
             {
@@ -46,8 +46,6 @@ namespace ProtractorTestAdapter
 
         internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink, string baseDir = "")
         {
-            //if(!Debugger.IsAttached)
-            //        Debugger.Launch();
             var tests = new List<TestCase>();
             
             foreach (string source in sources)
