@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -19,6 +20,13 @@ namespace ProtractorTestAdapter
         public void DiscoverTests(IEnumerable<string> sources, IDiscoveryContext discoveryContext, IMessageLogger logger,
             ITestCaseDiscoverySink discoverySink)
         {
+            if (Debugger.IsAttached) Debugger.Break();
+            else Debugger.Launch();
+            string baseDir = Environment.CurrentDirectory;
+            try
+            {
+                baseDir = XElement.Parse(discoveryContext.RunSettings.SettingsXml).Element("RunConfiguration").Element("SolutionDirectory").Value;
+            } catch (Exception) { }
             logger.SendMessage(TestMessageLevel.Informational, Process.GetCurrentProcess().ProcessName + " Id: " + Process.GetCurrentProcess().Id.ToString());
             foreach (var source in sources)
             {
@@ -27,7 +35,7 @@ namespace ProtractorTestAdapter
 
             try
             {
-                GetTests(sources, discoverySink);
+                GetTests(sources, discoverySink, baseDir);
             }
             catch (Exception e)
             {
@@ -36,7 +44,7 @@ namespace ProtractorTestAdapter
 
         }
 
-        internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink)
+        internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink, string baseDir = "")
         {
             //if(!Debugger.IsAttached)
             //        Debugger.Launch();
@@ -44,7 +52,7 @@ namespace ProtractorTestAdapter
             
             foreach (string source in sources)
             {
-                var TestNames = GetTestNameFromFile(source);
+                var TestNames = GetTestNameFromFile(source, baseDir);
                 foreach (var testName in TestNames)
                 {
                     var normalizedSource = source.ToLowerInvariant();
@@ -62,22 +70,41 @@ namespace ProtractorTestAdapter
             return tests;
         }
 
-        private const string DescribeToken = "describe('";
+        private static string GetLongestCommonPrefix(string[] directories)
+        {
+            if (directories == null || directories.Length == 0)
+                return String.Empty;
+            char SEPARATOR = Path.DirectorySeparatorChar;
+            string[] prefixParts =
+                directories.Select(dir => dir.Split(SEPARATOR))
+                .Aggregate(
+                    (first, second) => first.Zip(second, (a, b) =>
+                                            new { First = a, Second = b })
+                                        .TakeWhile(pair => pair.First.Equals(pair.Second))
+                                        .Select(pair => pair.First)
+                                        .ToArray()
+                );
+            return string.Join(SEPARATOR.ToString(), prefixParts);
+        }
 
-        private static Dictionary<string, int> GetTestNameFromFile(string source)
+        private static Dictionary<string, int> GetTestNameFromFile(string source, string baseDir = "")
         {
             switch(AppConfig.Framework)
             {
                 case TestFramework.Jasmine:
                     return GetTestNameFromFileJS(source);
                 default:
+                    var common = GetLongestCommonPrefix(new string[] { baseDir, source });
+                    var reduced = source.Substring(common.Length);
+                    if (reduced.StartsWith(Path.DirectorySeparatorChar.ToString())) reduced = reduced.Substring(1);
                     return new Dictionary<string, int>
                     {
-                        { source, 0 }
+                        { reduced, 0 }
                     };
             }
         }
 
+        private const string DescribeToken = "describe('";
         private static Dictionary<string, int> GetTestNameFromFileJS(string source)
         {
             var testNames = new Dictionary<string, int>();
