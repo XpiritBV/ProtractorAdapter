@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
+using ProtractorAdapter;
 
 namespace ProtractorTestAdapter
 {
@@ -47,13 +48,16 @@ namespace ProtractorTestAdapter
         internal static IEnumerable<TestCase> GetTests(IEnumerable<string> sources, ITestCaseDiscoverySink discoverySink, string baseDir = "")
         {
             var tests = new List<TestCase>();
-            
+
             foreach (string source in sources)
             {
                 var TestNames = GetTestNameFromFile(source, baseDir);
                 foreach (var testName in TestNames)
                 {
                     var normalizedSource = source.ToLowerInvariant();
+                    // NOTE! Keep in mind that testName.Key needs to ALWAYS be the same!
+                    // It can't be a path or whatsoever. Otherwise it would vary accross environments and VSTS won't detect it
+                    // Thus returning a cryptic message stating that tests were found but *not* discovered (e.g. 1 test found, 0 discovered)
                     var testCase = new TestCase(testName.Key, ProtractorTestExecutor.ExecutorUri, normalizedSource);
                     tests.Add(testCase);
                     testCase.CodeFilePath = source;
@@ -68,22 +72,6 @@ namespace ProtractorTestAdapter
             return tests;
         }
 
-        private static string GetLongestCommonPrefix(string[] directories)
-        {
-            if (directories == null || directories.Length == 0)
-                return String.Empty;
-            char SEPARATOR = Path.DirectorySeparatorChar;
-            string[] prefixParts =
-                directories.Select(dir => dir.Split(SEPARATOR))
-                .Aggregate(
-                    (first, second) => first.Zip(second, (a, b) =>
-                                            new { First = a, Second = b })
-                                        .TakeWhile(pair => pair.First.Equals(pair.Second))
-                                        .Select(pair => pair.First)
-                                        .ToArray()
-                );
-            return string.Join(SEPARATOR.ToString(), prefixParts);
-        }
 
         private static Dictionary<string, int> GetTestNameFromFile(string source, string baseDir = "")
         {
@@ -92,12 +80,17 @@ namespace ProtractorTestAdapter
                 case TestFramework.Jasmine:
                     return GetTestNameFromFileJS(source);
                 default:
-                    var common = GetLongestCommonPrefix(new string[] { baseDir, source });
-                    var reduced = source.Substring(common.Length);
-                    if (reduced.StartsWith(Path.DirectorySeparatorChar.ToString())) reduced = reduced.Substring(1);
+                    var packageJson = Helper.FindPackageJson(source);
+                    var key = Path.GetFileNameWithoutExtension(source);
+                    if (!String.IsNullOrEmpty(packageJson))
+                    {
+                        var common = Helper.GetLongestCommonPrefix(new string[] { source, packageJson });
+                        key = source.Substring(common.Length);
+                        if (key.StartsWith(Path.DirectorySeparatorChar.ToString())) key = key.Substring(1);
+                    }
                     return new Dictionary<string, int>
                     {
-                        { Path.GetFileNameWithoutExtension(source), 0 }
+                        { key, 0 }
                     };
             }
         }

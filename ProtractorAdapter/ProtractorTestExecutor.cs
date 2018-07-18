@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
 using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
+using ProtractorAdapter;
 
 namespace ProtractorTestAdapter
 {
@@ -65,6 +66,8 @@ namespace ProtractorTestAdapter
         /// <param param name="frameworkHandle">Handle to the framework to record results and to do framework operations.</param>
         public void RunTests(IEnumerable<TestCase> tests, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
+            //if (Debugger.IsAttached) Debugger.Break();
+            //else Debugger.Launch();
             m_cancelled = false;
             try
             {
@@ -140,34 +143,7 @@ namespace ProtractorTestAdapter
 
             return resultOutCome;
         }
-        public static string FindExePath(string exe)
-        {
-            exe = Environment.ExpandEnvironmentVariables(exe);
-            if (!File.Exists(exe))
-            {
-                if (Path.GetDirectoryName(exe) == String.Empty)
-                {
-                    foreach (string test in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(';'))
-                    {
-                        string path = test.Trim();
-                        if (!String.IsNullOrEmpty(path) && File.Exists(path = Path.Combine(path, exe)))
-                        {
-                            exe = path;
-                            break;
-                        }
-                    }
-                }
-                else throw new FileNotFoundException(new FileNotFoundException().Message, exe);
-            }
-            exe = Path.GetFullPath(exe);
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                if (File.Exists(exe + ".exe")) exe += ".exe";
-                else if (File.Exists(exe + ".bat")) exe += ".bat";
-                else if (File.Exists(exe + ".cmd")) exe += ".cmd";
-            }
-            return exe;
-        }
+
         private string RunProtractor(TestCase test, IRunContext runContext, IFrameworkHandle frameworkHandle)
         {
             var resultFile = Path.GetFileNameWithoutExtension(test.Source);
@@ -175,18 +151,20 @@ namespace ProtractorTestAdapter
 
             resultFile = Path.Combine(Path.GetTempPath(), resultFile);
             frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Using result file: " + resultFile);
+            var cwd = Helper.FindPackageJson(test.Source);
+            var exe = Helper.FindExePath(AppConfig.Program);
 
             ProcessStartInfo info = new ProcessStartInfo()
             {
                 Arguments = string.Format("{0} --resultJsonOutputFile \"{1}\" --specs \"{2}\"", AppConfig.Arguments, resultFile, test.Source),
-                FileName = FindExePath(AppConfig.Program),
-                WorkingDirectory = runContext.SolutionDirectory,
+                FileName = exe,
+                WorkingDirectory = cwd,//runContext.SolutionDirectory,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
             };
-            frameworkHandle.SendMessage(TestMessageLevel.Informational, $"Framework: Starting {AppConfig.Program} with arguments: {info.Arguments}");
+            frameworkHandle.SendMessage(TestMessageLevel.Informational, $"Framework: Starting {exe} on '{cwd}' with arguments: {info.Arguments}");
 
 
             Process p = new Process();

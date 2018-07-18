@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="AppConfig.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="Helpers\ISolutionEventsListener.cs" />
     <Compile Include="Helpers\ITestFileAddRemoveListener.cs" />
     <Compile Include="Helpers\ITestFilesUpdateWatcher.cs" />
