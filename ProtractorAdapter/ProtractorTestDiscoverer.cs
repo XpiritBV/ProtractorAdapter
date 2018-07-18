@@ -97,7 +97,7 @@ namespace ProtractorTestAdapter
                     if (reduced.StartsWith(Path.DirectorySeparatorChar.ToString())) reduced = reduced.Substring(1);
                     return new Dictionary<string, int>
                     {
-                        { reduced, 0 }
+                        { Path.GetFileNameWithoutExtension(source), 0 }
                     };
             }
         }
