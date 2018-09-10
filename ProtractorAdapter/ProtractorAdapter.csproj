@@ -96,6 +96,11 @@
     <Content Include="adapter.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll">
+      <Link>Newtonsoft.Json.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
@@ -248,11 +253,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Target Name="ValidateVsixParts" DependsOnTargets="$(ValidateVsixPartsDependsOn)">
-    <ItemGroup>
-      <VSIXSourceItem Include="..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll" />
-    </ItemGroup>
-    <ValidateVsixParts Condition="'$(BypassVsixValidation)' != 'true'" Manifest="$(IntermediateVsixManifest)" Files="@(VSIXSourceItem)" ContentManifest="@(ContentManifest)">
-    </ValidateVsixParts>
-  </Target>
 </Project>
