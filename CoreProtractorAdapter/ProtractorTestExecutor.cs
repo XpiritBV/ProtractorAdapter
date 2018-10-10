@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Adapter;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.Logging;
@@ -39,7 +36,10 @@ namespace ProtractorTestAdapter
         public void RunTests(IEnumerable<string> sources, IRunContext runContext,
           IFrameworkHandle frameworkHandle)
         {
-            try {
+            if (Debugger.IsAttached) Debugger.Break();
+            else Debugger.Launch();
+            try
+            {
                 frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Running from process:" + Process.GetCurrentProcess() + " ID:" + Process.GetCurrentProcess().Id.ToString());
                 foreach (var source in sources)
                 {
@@ -149,7 +149,7 @@ namespace ProtractorTestAdapter
             var resultFile = Path.GetFileNameWithoutExtension(test.Source);
             resultFile += ".result.json";
 
-            resultFile = Path.Combine(Path.GetTempPath(), resultFile);
+            resultFile = AppConfig.ResultsPath ?? Path.GetTempPath() + Path.DirectorySeparatorChar + resultFile;
             frameworkHandle.SendMessage(TestMessageLevel.Informational, "Framework: Using result file: " + resultFile);
             var cwd = Helper.FindPackageJson(test.Source);
             var exe = Helper.FindExePath(AppConfig.Program);

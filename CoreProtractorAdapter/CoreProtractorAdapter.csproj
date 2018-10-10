@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyName>CoreProtractor.TestAdapter</AssemblyName>
+    <RootNamespace>ProtractorTestAdapter</RootNamespace>
+    <Configurations>Debug;Release;ReleaseCore</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="adapter.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="adapter.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNet.Glob" Version="2.1.1" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="15.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+</Project>

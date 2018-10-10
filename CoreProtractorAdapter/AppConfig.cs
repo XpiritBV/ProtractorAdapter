@@ -36,7 +36,9 @@ namespace ProtractorTestAdapter
         public static TestFramework Framework { get {
                 TestFramework result;
                 return Enum.TryParse<TestFramework>(GetConfig("framework"), true, out result) ? result : TestFramework.None;
-            } }
+            }
+        }
+        public static string ResultsPath { get => GetConfig("results") ?? null; }
         public static string Program { get => GetConfig("program") ?? "npm"; }
         public static string Arguments { get => GetConfig("arguments") ?? "run protractor --"; }
         public static string Exclude { get => GetConfig("exclude") ?? "node_modules"; }
